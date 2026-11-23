@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Datacenterkollen · Underlag för datacenter</title>
+<meta name="description" content="Klickbar prototyp för att jämföra fiktiva datacenterärenden och se vilket underlag som behöver följas upp.">
+<style>
+:root {
+  color-scheme: light;
+  --ink: #162d2a;
+  --muted: #4e615a;
+  --line: #d9e2d8;
+  --green: #24584a;
+  --paper: #fffefa;
+  --wash: #f1f4eb;
+  --amber: #774714;
+  --amber-bg: #fff0d4;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--wash); color: var(--ink); font: 1rem/1.52 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+button, select, input { font: inherit; }
+button { cursor: pointer; }
+button:focus-visible, select:focus-visible, summary:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid #996019; outline-offset: 3px; }
+a { color: var(--green); }
+.shell { width: min(1240px, calc(100% - 64px)); margin: auto; }
+.mast { background: #13372f; color: #f9f9ef; }
+.mast .shell { display: flex; justify-content: space-between; align-items: center; min-height: 67px; gap: 12px; }
+.brand { display: flex; align-items: center; gap: 11px; font-weight: 700; font-size: 17px; letter-spacing: -.02em; }
+.brand-mark { display: grid; place-items: center; background: #dce9c5; color: #173a31; width: 32px; height: 32px; border-radius: 7px; font-size: 20px; }
+.mast small { color: #e1e9d9; padding: 4px 9px; border: 1px solid #718a7d; border-radius: 5px; }
+main { padding-top: 31px; padding-bottom: 44px; }
+h1, h2, h3, p { margin: 0; }
+h1 { font-family: Georgia, serif; font-weight: 500; font-size: clamp(34px, 5vw, 56px); line-height: 1.05; letter-spacing: -.052em; }
+h2 { font-size: 20px; line-height: 1.25; letter-spacing: -.025em; }
+h3 { font-size: 16px; line-height: 1.25; }
+p { color: var(--muted); }
+.intro { display: flex; justify-content: space-between; align-items: end; gap: 22px; margin-bottom: 23px; }
+.intro p { margin-top: 10px; font-size: 16px; }
+.filter label { display: block; font-size: .875rem; font-weight: 700; margin-bottom: 4px; }
+.select-wrap { position: relative; }
+.select-wrap::after { content: ''; position: absolute; right: 14px; top: calc(50% - 4px); width: 6px; height: 6px; border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); pointer-events: none; }
+select { appearance: none; width: 100%; min-height: 41px; padding: 7px 36px 7px 12px; border: 1px solid #b5c6ba; border-radius: 6px; background: var(--paper); color: var(--ink); }
+.notice { display: flex; align-items: center; gap: 9px; padding: 9px 13px; border: 1px solid #e4d0a4; border-radius: 7px; background: #faf1df; color: #624015; font-size: .875rem; margin-bottom: 18px; }
+.notice b { margin-right: 4px; }
+.frame { border: 1px solid var(--line); border-radius: 12px; background: var(--paper); box-shadow: 0 2px 4px #24372b08; }
+.map-layout { display: grid; grid-template-columns: minmax(0, 1.57fr) minmax(0, 1fr); gap: 17px; align-items: stretch; }
+.panel-head { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 5px 16px; align-items: center; padding: 15px 19px; border-bottom: 1px solid var(--line); }
+.panel-head span { color: var(--muted); font-size: 12px; }
+.map-panel { overflow: hidden; display: flex; flex-direction: column; }
+.map-stage { position: relative; isolation: isolate; min-height: 405px; flex: 1; background: #e9eddb; }
+.map-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.map-marker { position: absolute; transform: translate(-14px,-50%); display: inline-flex; gap: 6px; align-items: center; max-width: 53%; min-height: 38px; border: 0; padding: 4px; background: transparent; color: #23362d; font-size: .875rem; font-weight: 650; text-align: left; border-radius: 5px; }
+.map-marker[aria-pressed="true"] { z-index: 2; color: #153b31; }
+.dot { display: grid; place-items: center; flex: 0 0 21px; width: 21px; height: 21px; border: 2px solid white; border-radius: 50%; background: #507568; color: white; box-shadow: 0 1px 5px #25403755; font-size: 10px; font-weight: 800; }
+.map-marker[aria-pressed="true"] .dot { background: #153e33; outline: 2px solid #153e33; }
+.marker-name { background: #fffef5f2; border: 1px solid #cfd9cc; border-radius: 5px; padding: 4px 8px; line-height: 1.22; }
+.map-marker[aria-pressed="true"] .marker-name { border-color: #2b5448; }
+.map-legend { display: flex; gap: 8px 17px; flex-wrap: wrap; padding: 11px 19px; color: var(--muted); font-size: .875rem; border-top: 1px solid var(--line); }
+.map-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend-line { width: 19px; border-bottom: 2px solid #a9854a; }
+.legend-line.heat { border-bottom: 2px dashed #6c8d72; }
+.detail { padding: 18px 20px; }
+.case-type { font-size: .875rem; font-weight: 700; color: var(--green); }
+.case-title { font: 500 31px/1.12 Georgia, serif; letter-spacing: -.045em; margin: 4px 0 9px; }
+.case-meta { font-size: .875rem; }
+.case-meta strong { color: var(--ink); }
+.metric-list { margin: 14px 0 0; }
+.metric { display: grid; grid-template-columns: 1fr auto; align-items: start; gap: 4px 9px; padding: 11px 0; border-top: 1px solid var(--line); }
+.metric dt { font-weight: 700; }
+.metric dd { margin: 0; }
+.metric .metric-note { grid-column: 1/-1; color: var(--muted); font-size: .875rem; }
+.pill { display: inline-block; border-radius: 100px; padding: 2px 8px; font-size: .875rem; font-weight: 700; line-height: 1.45; white-space: nowrap; background: #e8efe5; color: #385f4b; }
+.pill.missing { background: var(--amber-bg); color: var(--amber); }
+.followup { margin-top: 5px; padding: 10px 12px; background: #edf3e9; border-radius: 6px; font-size: .875rem; }
+.followup summary { margin-bottom: 2px; }
+details { margin-top: 12px; color: var(--green); font-size: .875rem; }
+summary { cursor: pointer; width: fit-content; font-weight: 700; }
+details ul { padding-left: 17px; margin-bottom: 0; color: var(--muted); }
+.footer-note { font-size: 12px; margin-top: 13px; }
+.table-shell { overflow-x: auto; }
+table { border-collapse: collapse; text-align: left; width: 100%; }
+th, td { padding: 13px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+thead th { background: #e8efe4; color: #305046; font-size: .875rem; }
+th[scope="row"] { min-width: 145px; }
+td { min-width: 135px; color: var(--muted); }
+.selected-row { background: #f0f5ec; }
+td p { margin-top: 5px; font-size: .875rem; }
+.text-button { border: 0; padding: 0; text-align: left; background: transparent; color: var(--green); font-weight: 750; text-decoration: underline; text-underline-offset: 3px; }
+.grid-details { margin-top: 15px; }
+.check-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); align-items: start; gap: 17px; }
+.check-list { padding: 15px; }
+.check-list h2 { margin: 1px 0 11px; }
+.case-item { width: 100%; display: flex; flex-wrap: wrap; gap: 0 8px; justify-content: space-between; align-items: center; padding: 9px 11px; margin-top: 6px; background: var(--paper); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; text-align: left; }
+.case-item[aria-pressed="true"] { background: #e8efe3; border-color: #7c9b83; }
+.case-item small { color: var(--muted); }
+.steps { margin: 14px 0 0; padding: 0; list-style: none; }
+.step { border: 1px solid var(--line); border-radius: 7px; margin-top: 8px; padding: 9px 12px; }
+.step label { display: flex; align-items: start; gap: 8px; font-weight: 700; cursor: pointer; }
+.step input { width: 17px; height: 17px; margin: 3px 0 0; accent-color: var(--green); }
+.step p { margin-left: 25px; font-size: .875rem; }
+.progress { margin-top: 12px; font-size: .875rem; }
+.toolbar, .switcher { display: flex; align-items: center; gap: 6px; }
+.toolbar { justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+.switcher { padding: 4px; background: #e1ebde; border: 1px solid var(--line); border-radius: 8px; }
+.switcher button, .button { padding: 7px 12px; border: 1px solid transparent; border-radius: 5px; color: var(--green); background: transparent; font-weight: 700; font-size: .875rem; }
+.switcher button[aria-pressed="true"] { background: #fffefa; border-color: #c9d8c9; color: var(--ink); }
+.switcher button:hover, .button:hover { background: #dce9db; }
+.button { background: var(--paper); border-color: #b5c6ba; }
+.button:disabled { opacity: .55; cursor: default; }
+.button.primary { color: #fffefa; background: #24584a; border-color: #24584a; }
+.button.primary:hover { background: #173e33; }
+.share { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+.share output { font-size: .875rem; color: var(--green); }
+.share output:empty { display: none; }
+.share input { width: min(290px, 85vw); }
+.scenario { margin-top: 14px; padding: 11px 13px; border: 1px solid #c9d8cb; border-radius: 7px; background: #f4f8f0; }
+.scenario h3 { margin-bottom: 5px; }
+.scenario label, .scenario-output { font-size: .875rem; }
+.scenario form { display: flex; align-items: end; flex-wrap: wrap; gap: 7px; margin: 9px 0; }
+.scenario label { display: grid; gap: 3px; font-weight: 700; }
+.scenario input, .share input { border: 1px solid #aabeab; border-radius: 5px; padding: 5px 8px; color: var(--ink); background: var(--paper); }
+.scenario input { width: 105px; }
+.scenario-output p + p { margin-top: 4px; }
+.scenario-output strong { color: var(--ink); }
+.case-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; }
+.layer-choice { display: flex; align-items: center; gap: 5px; cursor: pointer; }
+.layer-choice input { accent-color: var(--green); }
+.comparison-note { margin: 0 19px 13px; font-size: .875rem; }
+.table-shell:focus-visible { outline: 3px solid #996019; outline-offset: -3px; }
+@media (max-width: 780px) {
+  .shell { width: calc(100% - 32px); }
+  .map-layout, .check-layout { grid-template-columns: 1fr; }
+  .map-stage { min-height: 340px; }
+}
+@media (max-width: 520px) {
+  .intro { display: grid; align-items: start; gap: 13px; }
+  .filter { max-width: 230px; }
+  .map-stage { min-height: 285px; }
+  .map-marker { font-size: .875rem; }
+  .marker-name { padding: 4px 5px; }
+  .detail { padding: 15px; }
+}
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="shell">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">⌁</span> Datacenterkollen</div>
+    <small>Klickbar prototyp</small>
+  </div>
+</header>
+<main class="shell">
+  <div class="intro">
+    <div>
+      <h1>Underlag för datacenter</h1>
+      <p>Se vilka uppgifter som finns inför etablering eller utbyggnad.</p>
+    </div>
+    <div class="filter">
+      <label for="filter">Typ av ärende</label>
+      <div class="select-wrap"><select id="filter">
+        <option value="alla">Alla ärenden</option>
+        <option value="ny">Nyetablering</option>
+        <option value="befintlig">Utbyggnad av befintligt</option>
+      </select></div>
+    </div>
+  </div>
+  <p class="notice"><span aria-hidden="true">ⓘ</span><span><b>Fiktiva exempel.</b> Platser, värden och källuppgifter är simulerade.</span></p>
+  <div class="toolbar">
+    <nav class="switcher" aria-label="Välj vy">
+      <button type="button" data-variant="A">Karta</button>
+      <button type="button" data-variant="B">Jämförelse</button>
+      <button type="button" data-variant="C">Checklista</button>
+    </nav>
+    <div class="share">
+      <button class="button" type="button" id="share">Kopiera länk till vyn</button>
+      <output id="share-status" aria-live="polite"></output>
+      <input id="share-link" aria-label="Länk att kopiera" type="text" readonly hidden>
+    </div>
+  </div>
+  <div id="view"></div>
+  <p class="footer-note">Projektinriktning [Amir]. Vyer, fält och effektjämförelse är designförslag [Antagande].</p>
+</main>
+<script>
+/* Kan en handläggare hitta vilken uppgift som saknas? Tre layouter delar samma fiktiva ärenden. */
+const cases = [
+  {
+    id: 'hamn', name: 'Västerhamn', type: 'ny', x: 26, y: 58, demand: 30, capacity: [20, 35],
+    metrics: [
+      { label: 'Elnätskapacitet', status: 'Preliminärt', note: 'Nätägaren uppskattar 20–35 MW. Anslutningstid saknas.', source: 'Simulerad förfrågan till nätägaren. Uppskattat intervall, inget anslutningsbesked.', action: 'Begär uppgift om möjlig effekt och tidpunkt för anslutning.' },
+      { label: 'Återvinning av spillvärme', status: 'Preliminärt', note: 'Fjärrvärmenät i närheten. Mottagningskapacitet saknas.', source: 'Simulerad översiktskarta. Kapacitet och värmebehov är okända.', action: 'Kontakta fjärrvärmebolaget om värmebehov och mottagningskapacitet.' },
+      { label: 'Kylning och vatten', status: 'Uppgift saknas', note: 'Projektören har ännu inte angett kylmetod eller vattenbehov.', source: 'Ingen uppgift i det simulerade projektunderlaget.', action: 'Be projektören ange kylmetod och beräknat vattenbehov.' }
+    ]
+  },
+  {
+    id: 'lunda', name: 'Lundavik', type: 'ny', x: 52, y: 27, demand: 20, capacity: null,
+    metrics: [
+      { label: 'Elnätskapacitet', status: 'Uppgift saknas', note: 'Tillgänglig effekt och tidpunkt för anslutning är okända.', source: 'Inget svar från den simulerade nätägaren.', action: 'Fråga nätägaren om möjlig effekt och beräknad anslutningstid.' },
+      { label: 'Återvinning av spillvärme', status: 'Preliminärt', note: 'Ett växthus har anmält intresse. Värmebehovet är okänt.', source: 'Simulerad intresseanmälan. Värmebehov över året saknas.', action: 'Be växthusets ägare uppskatta värmebehov per årstid.' },
+      { label: 'Kylning och vatten', status: 'Preliminärt', note: 'Luftkylning föreslås. Årligt vattenbehov saknas.', source: 'Simulerad projektskiss. Fullständig vattenberäkning saknas.', action: 'Begär projektörens underlag om vattenbehov.' }
+    ]
+  },
+  {
+    id: 'sodra', name: 'Bergdala', type: 'befintlig', x: 58, y: 76, demand: 15, capacity: [10, 10],
+    metrics: [
+      { label: 'Elnätskapacitet', status: 'Preliminärt', note: '10 MW extra uppskattas vara möjligt. Anslutningstid saknas.', source: 'Simulerad förfrågan till nätägaren. Uppskattningen avser tillkommande effekt.', action: 'Begär uppgift om hur mycket extra effekt som kan erbjudas och när.' },
+      { label: 'Återvinning av spillvärme', status: 'Uppgift saknas', note: 'Mottagare för den tillkommande värmen är okänd.', source: 'Ingen uppgift om tillkommande värme i det simulerade underlaget.', action: 'Kontakta fjärrvärmebolaget om intresse för den extra värmen.' },
+      { label: 'Kylning och vatten', status: 'Preliminärt', note: 'Befintlig kylning används. Tillkommande vattenbehov saknas.', source: 'Simulerad driftbeskrivning. Beräkning för utbyggnaden saknas.', action: 'Begär en vattenberäkning för utbyggnaden.' }
+    ]
+  }
+];
+
+const variants = [
+  { key: 'A', render: mapView },
+  { key: 'B', render: comparisonView },
+  { key: 'C', render: checklistView }
+];
+const view = document.querySelector('#view');
+const filter = document.querySelector('#filter');
+const shareStatus = document.querySelector('#share-status');
+const shareLink = document.querySelector('#share-link');
+const variantButtons = document.querySelectorAll('[data-variant]');
+const params = new URLSearchParams(location.search);
+let selectedId = cases.find(item => item.id === params.get('arende'))?.id ?? cases[0].id;
+let selectedVariant = variants.find(variant => variant.key === params.get('variant')) ?? variants[0];
+filter.value = Array.from(filter.options).some(option => option.value === params.get('typ')) ? params.get('typ') : 'alla';
+const checkedTasks = new Map();
+const demands = new Map();
+const formatNumber = new Intl.NumberFormat('sv-SE', { maximumFractionDigits: 1 });
+const layers = { el: true, heat: true };
+const initialDemand = Number(params.get('effekt'));
+if (validDemand(initialDemand)) demands.set(selectedId, initialDemand);
+
+function typeName(item) {
+  return item.type === 'ny' ? 'Nyetablering' : 'Utbyggnad';
+}
+
+function validDemand(value) {
+  return Number.isFinite(value) && value >= 0.1 && value <= 1000 && value === Math.round(value * 10) / 10;
+}
+
+function demandFor(item) {
+  return demands.get(item.id) ?? item.demand;
+}
+
+function power(item, value) {
+  return `${formatNumber.format(value)} MW${item.type === 'befintlig' ? ' extra' : ''}`;
+}
+
+function capacityText(item) {
+  if (!item.capacity) return 'uppgift saknas';
+  const [low, high] = item.capacity;
+  return low === high ? power(item, high) : `${formatNumber.format(low)}–${power(item, high)}`;
+}
+
+function scenarioMessage(item) {
+  if (!item.capacity) return 'Jämförelsen saknar en uppskattning från nätägaren.';
+  const [low, high] = item.capacity;
+  const demand = demandFor(item);
+  if (demand > high) return 'Effektbehovet ligger över den preliminära nätuppgiften.';
+  if (demand > low) return 'Effektbehovet ryms bara i den övre delen av intervallet.';
+  return 'Den preliminära nätuppgiften täcker effektbehovet.';
+}
+
+function sourceDetails(item) {
+  return `<details><summary>Visa källuppgifter</summary>
+    <ul>${item.metrics.map(metric => `<li><strong>${metric.label}.</strong> ${metric.source}</li>`).join('')}</ul>
+  </details>`;
+}
+
+function statusPill(metric) {
+  const statusClass = metric.status === 'Uppgift saknas' ? ' missing' : '';
+  return `<span class="pill${statusClass}">${metric.status}</span>`;
+}
+
+function caseHeader(item) {
+  return `<div class="case-type">${typeName(item)}</div>
+    <h2 class="case-title">${item.name}</h2>
+    <p class="case-meta">Effektbehov i ärendet <strong>${power(item, item.demand)}</strong></p>`;
+}
+
+function scenario(item) {
+  return `<section class="scenario" aria-labelledby="scenario-title">
+    <h3 id="scenario-title">Prova ett effektbehov</h3>
+    <p class="scenario-output">Preliminär nätuppgift <strong>${capacityText(item)}</strong></p>
+    <form id="scenario-form">
+      <label for="demand">${item.type === 'befintlig' ? 'Extra effekt (MW)' : 'Effekt (MW)'}
+        <input id="demand" name="effekt" type="number" inputmode="decimal" min="0.1" max="1000" step="0.1" required value="${demandFor(item)}">
+      </label>
+      <button class="button primary" type="submit">Jämför</button>
+      <button class="button" type="button" data-reset ${demands.has(item.id) ? '' : 'disabled'}>Återställ</button>
+    </form>
+    <div class="scenario-output" aria-live="polite" id="scenario-result">
+      <p><strong>${scenarioMessage(item)}</strong></p>
+      <p>Kontrollera möjlig effekt och anslutningstid med nätägaren.</p>
+    </div>
+  </section>`;
+}
+
+function detail(item) {
+  return `<article class="detail" aria-label="Ärendeuppgifter">
+    ${caseHeader(item)}
+    <dl class="metric-list">
+      ${item.metrics.map(metric => `<div class="metric">
+        <dt>${metric.label}</dt><dd>${statusPill(metric)}</dd>
+        <dd class="metric-note">${metric.note}</dd>
+      </div>`).join('')}
+    </dl>
+    ${sourceDetails(item)}
+    <details class="followup"><summary>Förslag på uppföljning</summary>
+      <ul>${item.metrics.map(metric => `<li>${metric.action}</li>`).join('')}</ul>
+    </details>
+    ${scenario(item)}
+    <div class="case-actions"><button class="button" type="button" data-open-checklist>Öppna ärendets checklista</button></div>
+  </article>`;
+}
+
+function mapView(items, current) {
+  return `<div class="map-layout">
+    <section class="frame map-panel" aria-label="Ärendekarta">
+      <header class="panel-head"><h2>Ärenden på kartan</h2><span>Schematisk karta</span></header>
+      <div class="map-stage">
+        <canvas aria-hidden="true"></canvas>
+        ${items.map(item => `<button class="map-marker" style="left:${item.x}%;top:${item.y}%" data-case="${item.id}" aria-pressed="${item.id === current.id}" type="button"><span class="dot" aria-hidden="true">●</span><span class="marker-name">${item.name}</span></button>`).join('')}
+      </div>
+      <div class="map-legend">
+        <label class="layer-choice"><input type="checkbox" data-layer="el" ${layers.el ? 'checked' : ''}><i class="legend-line" aria-hidden="true"></i>Elnät</label>
+        <label class="layer-choice"><input type="checkbox" data-layer="heat" ${layers.heat ? 'checked' : ''}><i class="legend-line heat" aria-hidden="true"></i>Fjärrvärme</label>
+      </div>
+    </section>
+    <div class="frame">${detail(current)}</div>
+  </div>`;
+}
+
+function comparisonView(items, current) {
+  return `<section class="frame" aria-label="Jämför ärenden">
+    <header class="panel-head"><h2>Jämför ärenden</h2><span>${items.length} av ${cases.length} ärenden</span></header>
+    <div class="table-shell" tabindex="0" aria-label="Jämförelsetabell">
+      <table>
+        <thead><tr><th scope="col">Plats</th><th scope="col">Efterfrågad effekt</th>
+          ${current.metrics.map(metric => `<th scope="col">${metric.label}</th>`).join('')}
+        </tr></thead>
+        <tbody>${items.map(item => `<tr ${item.id === current.id ? 'class="selected-row"' : ''}>
+          <th scope="row"><button class="text-button" data-case="${item.id}" aria-pressed="${item.id === current.id}" type="button">${item.name}</button><p>${typeName(item)}</p></th>
+          <td><strong>${power(item, item.demand)}</strong></td>
+          ${item.metrics.map(metric => `<td>${statusPill(metric)}<p>${metric.note}</p></td>`).join('')}
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>
+    ${items.length === 1 ? '<p class="comparison-note">Välj Alla ärenden för att jämföra flera platser.</p>' : ''}
+  </section>
+  <div class="frame grid-details">${detail(current)}</div>`;
+}
+
+function checklistView(items, current) {
+  const tasks = checkedTasks.get(current.id) ?? new Set();
+  return `<div class="check-layout">
+    <section class="frame check-list" aria-label="Ärenden">
+      <h2>Välj ärende</h2>
+      ${items.map(item => `<button class="case-item" type="button" data-case="${item.id}" aria-pressed="${item.id === current.id}"><strong>${item.name}</strong><small>${typeName(item)}</small></button>`).join('')}
+    </section>
+    <section class="frame detail" id="checklist-detail" tabindex="-1" aria-label="Checklista för uppföljning">
+      ${caseHeader(current)}
+      <p class="progress"><span id="progress" aria-live="polite">${tasks.size} av ${current.metrics.length} uppföljningar markerade</span>. Markeringarna gäller i den här fliken tills du laddar om.</p>
+      <ul class="steps">${current.metrics.map((metric, index) => `<li class="step">
+        <label><input type="checkbox" data-task="${index}" ${tasks.has(index) ? 'checked' : ''}>${metric.label}</label>
+        <p>${statusPill(metric)} ${metric.note}</p>
+        <p>${metric.action}</p>
+      </li>`).join('')}</ul>
+      ${sourceDetails(current)}
+    </section>
+  </div>`;
+}
+
+const mapDrawing = [
+  ['#d8e5d0', 'M0 32 91 8 164 44 156 84 85 120 43 99 0 109Z M0 403 101 352 165 392 198 460 113 505 0 504Z M472 0 540 41 532 125 485 168 429 137 403 75 409 0Z M550 377 624 337 670 348 665 410 600 447 535 432Z M290 46 333 19 385 55 362 116 326 151 286 93Z M105 168 165 144 199 172 181 205 126 223 73 191Z'],
+  ['#e1e9d6', 'M0 191 65 163 85 237 9 285 0 263Z M256 335 283 309 343 333 357 384 314 425 239 412Z M528 179 570 165 608 193 581 232 521 243 480 215Z M327 238 349 215 411 227 434 267 386 299 345 282Z'],
+  ['#bed8d7', 'M610 0 Q561 81 607 126 Q646 166 648 215 Q649 250 622 272 Q579 318 633 343 Q675 368 677 425 Q677 467 640 490 L615 530 H760 V0Z M0 297 Q38 253 67 263 Q113 276 120 308 Q126 331 87 341 Q37 343 0 376Z M489 365 Q500 340 524 348 Q548 360 518 386 Q501 411 485 391Z M234 45 Q265 24 280 40 Q294 51 271 70 Q255 88 231 79 Q216 69 234 45Z']
+];
+const roads = [
+  'M-10 140 Q48 156 117 137 T236 114 Q280 114 333 148 T458 153 Q530 126 600 153',
+  'M30 480 Q73 404 133 351 T216 286 Q294 245 306 175 T322 -40',
+  'M173 530 Q233 446 300 430 T487 398 Q543 382 573 337 T615 258',
+  'M0 231 Q113 224 161 259 T262 318 Q316 328 379 300 T539 282 Q583 284 618 267',
+  'M416 -30 Q369 49 394 110 T431 204 Q465 252 445 310 T458 435 L488 530'
+];
+let mapResize;
+function drawMap(canvas) {
+  const { width, height } = canvas.getBoundingClientRect();
+  const scale = devicePixelRatio || 1;
+  canvas.width = width * scale;
+  canvas.height = height * scale;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(canvas.width / 760, canvas.height / 510);
+  ctx.fillStyle = '#e9eddb';
+  ctx.fillRect(0, 0, 760, 510);
+  mapDrawing.forEach(([color, shape]) => {
+    ctx.fillStyle = color;
+    ctx.fill(new Path2D(shape));
+  });
+  ctx.strokeStyle = '#d2dcc8';
+  ctx.lineWidth = 1;
+  const parcels = [
+    'M25 0 44 78 87 111 83 160 117 204 92 265 M100 0 129 64 219 103 239 173 197 214 202 266',
+    'M276 0 272 104 216 186 241 230 237 322 191 414 213 510 M351 0 337 75 352 147 347 223 306 303 336 369 313 510',
+    'M0 394 73 380 142 408 280 365 388 385 490 426 598 393 667 420 M402 0 437 65 415 132 472 186 535 184 588 217 649 204',
+    'M527 0 511 88 553 121 536 190 550 251 523 321 568 362 567 510 M0 210 64 198 111 240 209 220 297 263 370 212 460 225 502 264'
+  ];
+  parcels.forEach(path => ctx.stroke(new Path2D(path)));
+  ctx.lineCap = 'round';
+  roads.forEach(path => {
+    const line = new Path2D(path);
+    ctx.strokeStyle = '#d3d8c6'; ctx.lineWidth = 5; ctx.stroke(line);
+    ctx.strokeStyle = '#f8f7e9'; ctx.lineWidth = 3.5; ctx.stroke(line);
+  });
+  ctx.lineWidth = 2.3;
+  if (layers.el) {
+    ctx.strokeStyle = '#ae8a55';
+    ctx.stroke(new Path2D('M133 510 158 417 198 296 239 225 321 182 395 138 516 70 564 0 M198 296 306 323 441 388 547 376 607 313'));
+  }
+  if (layers.heat) {
+    ctx.strokeStyle = '#6b9074';
+    ctx.setLineDash([6, 5]);
+    ctx.stroke(new Path2D('M140 337 198 296 251 304 283 282 M389 411 441 388 480 404'));
+  }
+}
+
+function render() {
+  mapResize?.disconnect();
+  const items = cases.filter(item => filter.value === 'alla' || filter.value === item.type);
+  const current = items.find(item => item.id === selectedId) ?? items[0];
+  selectedId = current.id;
+  view.innerHTML = selectedVariant.render(items, current);
+  variantButtons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.variant === selectedVariant.key)));
+  const canvas = view.querySelector('canvas');
+  if (canvas) {
+    drawMap(canvas);
+    mapResize = new ResizeObserver(() => drawMap(canvas));
+    mapResize.observe(canvas);
+  }
+}
+
+function currentViewUrl() {
+  const url = new URL(location.href);
+  url.searchParams.set('variant', selectedVariant.key);
+  url.searchParams.set('arende', selectedId);
+  if (filter.value === 'alla') url.searchParams.delete('typ');
+  else url.searchParams.set('typ', filter.value);
+  if (demands.has(selectedId)) url.searchParams.set('effekt', demands.get(selectedId));
+  else url.searchParams.delete('effekt');
+  return url;
+}
+
+function syncUrl() {
+  history.replaceState(null, '', currentViewUrl());
+  shareStatus.textContent = '';
+  shareLink.hidden = true;
+}
+
+function changeVariant(key) {
+  selectedVariant = variants.find(variant => variant.key === key);
+  render();
+  syncUrl();
+}
+
+function updateScenario(item) {
+  view.querySelector('#demand').value = demandFor(item);
+  view.querySelector('#scenario-result strong').textContent = scenarioMessage(item);
+  view.querySelector('[data-reset]').disabled = !demands.has(item.id);
+  syncUrl();
+}
+
+variantButtons.forEach(button => button.addEventListener('click', () => changeVariant(button.dataset.variant)));
+filter.addEventListener('change', () => {
+  render();
+  syncUrl();
+});
+
+document.querySelector('#share').addEventListener('click', async () => {
+  const url = currentViewUrl().href;
+  try {
+    await navigator.clipboard.writeText(url);
+    shareStatus.textContent = 'Länken är kopierad.';
+    shareLink.hidden = true;
+  } catch {
+    shareStatus.textContent = 'Kopiera länken i fältet.';
+    shareLink.value = url;
+    shareLink.hidden = false;
+    shareLink.select();
+  }
+});
+
+view.addEventListener('click', event => {
+  if (event.target.closest('[data-open-checklist]')) {
+    changeVariant('C');
+    view.querySelector('#checklist-detail').focus();
+    return;
+  }
+  if (event.target.closest('[data-reset]')) {
+    demands.delete(selectedId);
+    view.querySelector('#demand').focus();
+    updateScenario(cases.find(item => item.id === selectedId));
+    return;
+  }
+  const button = event.target.closest('button[data-case]');
+  if (!button || button.dataset.case === selectedId) return;
+  selectedId = button.dataset.case;
+  render();
+  syncUrl();
+  view.querySelector(`button[data-case="${selectedId}"]`).focus({ preventScroll: true });
+});
+
+view.addEventListener('submit', event => {
+  if (event.target.id !== 'scenario-form') return;
+  event.preventDefault();
+  const demand = event.target.elements.effekt.valueAsNumber;
+  if (!validDemand(demand)) return;
+  demands.set(selectedId, demand);
+  updateScenario(cases.find(item => item.id === selectedId));
+});
+
+view.addEventListener('change', event => {
+  if (event.target.matches('input[data-layer]')) {
+    layers[event.target.dataset.layer] = event.target.checked;
+    drawMap(view.querySelector('canvas'));
+    return;
+  }
+  const input = event.target.closest('input[data-task]');
+  if (!input) return;
+  const tasks = checkedTasks.get(selectedId) ?? new Set();
+  const index = Number(input.dataset.task);
+  if (input.checked) tasks.add(index);
+  else tasks.delete(index);
+  checkedTasks.set(selectedId, tasks);
+  const item = cases.find(entry => entry.id === selectedId);
+  document.querySelector('#progress').textContent = `${tasks.size} av ${item.metrics.length} uppföljningar markerade`;
+});
+render();
+</script>
+</body>
+</html>

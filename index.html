@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Datacenterkollen · Översikt över Sverige</title>
+<meta name="description" content="Klickbar prototyp för kommuner som ska granska en datacenterförfrågan. Sverigekarta, platsbedömning och fiktiva exempel.">
+<link rel="stylesheet" href="styles.css">
+<script type="module" src="app.js"></script>
+</head>
+<body>
+<a class="skip" href="#app">Hoppa till innehållet</a>
+<header class="mast">
+  <div class="shell mast-inner">
+    <a class="brand" href="./"><span class="compass" aria-hidden="true"></span>Datacenterkollen</a>
+    <nav aria-label="Huvudnavigation">
+      <a href="./" data-nav="oversikt">Översikt</a>
+      <a href="?vy=plats" data-nav="plats">Platsbedömning</a>
+      <a href="?vy=data" data-nav="data">Om datan</a>
+    </nav>
+  </div>
+</header>
+<main class="shell" id="app" tabindex="-1">
+  <noscript>Aktivera JavaScript för att använda kartan och platsbedömningen.</noscript>
+</main>
+</body>
+</html>
